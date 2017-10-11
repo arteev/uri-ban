@@ -47,7 +47,6 @@ License
 
   MIT
 
-
 Author
 ------
 
