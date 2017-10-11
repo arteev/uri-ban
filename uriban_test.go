@@ -2,8 +2,7 @@ package uriban
 
 import "testing"
 
-func TestBan(t *testing.T) {
-
+func TestReplace(t *testing.T) {
 	ft := func(s string) string { return "123" }
 	cases := []struct {
 		url   string
@@ -41,14 +40,14 @@ func TestBan(t *testing.T) {
 
 		//PATH
 		{"scheme://userinfo:pwd@host/path?query#fragment", "scheme://userinfo:pwd@host/newpath?query#fragment", []Option{WithOption(Path, ModeValue("newpath"))}},
-		//QUERY
+
+		//QUERY. linked to a fragment. parsing with bug???
 		{"scheme://userinfo:pwd@host/path?query#fragment", "scheme://userinfo:pwd@host/path?newquery#fragment", []Option{WithOption(Query, ModeValue("newquery#fragment"))}},
 
 		//TODO: FRAGMENT. Bug?
 		//{"scheme://userinfo:pwd@host/path?query#fragment", "scheme://userinfo:pwd@host/path?query#newfragment", []Option{WithOption(Fragment, ModeValue("newfragment"))}},
 
 		//COMPLEX
-
 		{
 			"scheme://userinfo:pwd@host/path?query#fragment",
 			"scheme://usr1:****@host/newpath?query#fragment",
@@ -61,13 +60,27 @@ func TestBan(t *testing.T) {
 		//TODO: with err escape symbols
 	}
 
+	//  scheme:opaque?query#fragment
+	//  scheme://userinfo@host/path?query#fragment
 	for _, c := range cases {
-		got := Ban(c.url, c.modes...)
+		got := Replace(c.url, c.modes...)
 		if got != c.want {
 			t.Errorf("Expected %q, got %q", c.want, got)
 		}
 	}
+}
 
-	//  scheme:opaque?query#fragment
-	//  scheme://userinfo@host/path?query#fragment
+func BenchmarkReplace(b *testing.B) {
+	s := "scheme://userinfo:pwd@host/path?query#fragment"
+	opts := []Option{
+		WithOption(Username, ModeValue("usr1")),
+		WithOption(Password, ModeStarred(4)),
+		WithOption(Path, ModeValue("newpath")),
+		WithOption(Scheme, ModeNothing()),
+		WithOption(Path, ModeNothing()),
+		WithOption(Query, ModeValue("query2")),
+	}
+	for n := 0; n < b.N; n++ {
+		Replace(s, opts...)
+	}
 }
