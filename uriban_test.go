@@ -1,6 +1,7 @@
 package uriban
 
 import "testing"
+import "net/url"
 
 func TestReplace(t *testing.T) {
 	ft := func(s string) string { return "123" }
@@ -67,6 +68,21 @@ func TestReplace(t *testing.T) {
 		if got != c.want {
 			t.Errorf("Expected %q, got %q", c.want, got)
 		}
+	}
+}
+
+func TestURL(t *testing.T) {
+	//,
+	u, err := url.Parse("scheme://userinfo:pwd@host/path?query#fragment")
+	if err != nil {
+		t.Fatal(err)
+	}
+	chk := "scheme://userinfo:****@host/path?query#fragment"
+	ur := ReplaceURL(u, WithOption(Password, ModeStarred(4)))
+	if got, err := url.PathUnescape(ur.String()); err != nil {
+		t.Error(err)
+	} else if got != chk {
+		t.Errorf("Expected %q,got %q", chk, got)
 	}
 }
 

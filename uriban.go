@@ -70,7 +70,7 @@ func WithOption(p Part, mode Mode) Option {
 
 func replaceByOpt(cur Part, s string, opts map[Part]Mode) string {
 	if s == "" {
-		return s
+		return ""
 	}
 	if m, exists := opts[cur]; exists {
 		return m(cur, s)
@@ -89,6 +89,18 @@ func Replace(s string, opts ...Option) string {
 	if err != nil {
 		return replaceByOpt(All, s, mo)
 	}
+	ur := ReplaceURL(u, opts...)
+	res, _ := url.PathUnescape(ur.String())
+	return res
+}
+
+//ReplaceURL returns a url.URL in which the replacement part of the URL in the selected mode
+func ReplaceURL(u *url.URL, opts ...Option) url.URL {
+	mo := make(map[Part]Mode)
+	for _, opt := range opts {
+		p, m := opt()
+		mo[p] = m
+	}
 	if u.User != nil {
 		user := u.User
 		username := replaceByOpt(Username, u.User.Username(), mo)
@@ -106,9 +118,5 @@ func Replace(s string, opts ...Option) string {
 	u.Path = replaceByOpt(Path, u.Path, mo)
 	u.RawQuery = replaceByOpt(Query, u.RawQuery, mo)
 	u.Fragment = replaceByOpt(Fragment, u.Fragment, mo)
-	res, err := url.PathUnescape(u.String())
-	if err != nil {
-		return replaceByOpt(All, s, mo)
-	}
-	return res
+	return *u
 }
