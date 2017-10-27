@@ -72,17 +72,16 @@ func TestReplace(t *testing.T) {
 }
 
 func TestURL(t *testing.T) {
-	//,
 	u, err := url.Parse("scheme://userinfo:pwd@host/path?query#fragment")
 	if err != nil {
 		t.Fatal(err)
 	}
-	chk := "scheme://userinfo:****@host/path?query#fragment"
+	expected := "scheme://userinfo:****@host/path?query#fragment"
 	ur := ReplaceURL(u, WithOption(Password, ModeStarred(4)))
 	if got, err := url.PathUnescape(ur.String()); err != nil {
 		t.Error(err)
-	} else if got != chk {
-		t.Errorf("Expected %q,got %q", chk, got)
+	} else if got != expected {
+		t.Errorf("Expected %q,got %q", expected, got)
 	}
 }
 
