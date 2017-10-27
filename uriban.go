@@ -78,15 +78,20 @@ func replaceByOpt(cur Part, s string, opts map[Part]Mode) string {
 	return s
 }
 
-//Replace returns a string in which the replacement part of the URL in the selected mode
-func Replace(s string, opts ...Option) string {
+func modes(opts ...Option) map[Part]Mode {
 	mo := make(map[Part]Mode)
 	for _, opt := range opts {
 		p, m := opt()
 		mo[p] = m
 	}
+	return mo
+}
+
+//Replace returns a string in which the replacement part of the URL in the selected mode
+func Replace(s string, opts ...Option) string {
 	u, err := url.ParseRequestURI(s)
 	if err != nil {
+		mo := modes(opts...)
 		return replaceByOpt(All, s, mo)
 	}
 	ur := ReplaceURL(u, opts...)
@@ -96,11 +101,7 @@ func Replace(s string, opts ...Option) string {
 
 //ReplaceURL returns a url.URL in which the replacement part of the URL in the selected mode
 func ReplaceURL(u *url.URL, opts ...Option) url.URL {
-	mo := make(map[Part]Mode)
-	for _, opt := range opts {
-		p, m := opt()
-		mo[p] = m
-	}
+	mo := modes(opts...)
 	if u.User != nil {
 		user := u.User
 		username := replaceByOpt(Username, u.User.Username(), mo)
