@@ -24,7 +24,7 @@ func TestReplace(t *testing.T) {
 		{"url", "123", []Option{WithOption(All, ModeFunc(ft))}},
 		//END TEST MODES
 
-		{"scheme://userinfo:pwd@host/path?query#fragment", "scheme://userinfo:pwd@host/path?query#fragment", nil},
+		{"scheme://userinfo:pwd@host/path?query#fragment", "scheme://user:******@host/path?query#fragment", nil},
 
 		//PASSWORD
 		{"scheme://userinfo:pwd@host/path?query#fragment", "scheme://userinfo@host/path?query#fragment", []Option{WithOption(Password, ModeHidden())}},
@@ -98,6 +98,7 @@ func BenchmarkReplace(b *testing.B) {
 		WithOption(Path, ModeValue("newpath")),
 		WithOption(Scheme, ModeNothing()),
 		WithOption(Path, ModeNothing()),
+		WithOption(Host, ModeValue("localhost")),
 		WithOption(Query, ModeValue("query2")),
 	}
 	for n := 0; n < b.N; n++ {

@@ -23,6 +23,11 @@ const (
 	All
 )
 
+var DefaultOptions = []Option{
+	WithOption(Password, ModeStarred(6)),
+	WithOption(Username, ModeValue("user")),
+}
+
 //ModeHidden returns empty-line replacement mode
 func ModeHidden() Mode {
 	return func(Part, string) string {
@@ -101,6 +106,9 @@ func Replace(s string, opts ...Option) string {
 
 //ReplaceURL returns a url.URL in which the replacement part of the URL in the selected mode
 func ReplaceURL(u *url.URL, opts ...Option) url.URL {
+	if len(opts) == 0 {
+		opts = append([]Option{}, DefaultOptions...)
+	}
 	currentModes := modes(opts...)
 	if u.User != nil {
 		user := u.User
