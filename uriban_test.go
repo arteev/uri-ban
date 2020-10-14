@@ -1,7 +1,9 @@
 package uriban
 
-import "testing"
-import "net/url"
+import (
+	"net/url"
+	"testing"
+)
 
 func TestReplace(t *testing.T) {
 	ft := func(s string) string { return "123" }
@@ -45,17 +47,20 @@ func TestReplace(t *testing.T) {
 		//QUERY. linked to a fragment. parsing with bug???
 		{"scheme://userinfo:pwd@host/path?query#fragment", "scheme://userinfo:pwd@host/path?newquery#fragment", []Option{WithOption(Query, ModeValue("newquery#fragment"))}},
 
+		// Host
+		{"scheme://userinfo:pwd@host/path?query#fragment", "scheme://userinfo:pwd@localhost/path?query#fragment", []Option{WithOption(Host, ModeValue("localhost"))}},
 		//TODO: FRAGMENT. Bug?
 		//{"scheme://userinfo:pwd@host/path?query#fragment", "scheme://userinfo:pwd@host/path?query#newfragment", []Option{WithOption(Fragment, ModeValue("newfragment"))}},
 
 		//COMPLEX
 		{
 			"scheme://userinfo:pwd@host/path?query#fragment",
-			"scheme://usr1:****@host/newpath?query#fragment",
+			"scheme://usr1:****@somehost/newpath?query#fragment",
 			[]Option{
 				WithOption(Username, ModeValue("usr1")),
 				WithOption(Password, ModeStarred(4)),
 				WithOption(Path, ModeValue("newpath")),
+				WithOption(Host, ModeValue("somehost")),
 			},
 		},
 		//TODO: with err escape symbols

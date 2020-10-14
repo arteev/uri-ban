@@ -101,12 +101,12 @@ func Replace(s string, opts ...Option) string {
 
 //ReplaceURL returns a url.URL in which the replacement part of the URL in the selected mode
 func ReplaceURL(u *url.URL, opts ...Option) url.URL {
-	mo := modes(opts...)
+	currentModes := modes(opts...)
 	if u.User != nil {
 		user := u.User
-		username := replaceByOpt(Username, u.User.Username(), mo)
+		username := replaceByOpt(Username, u.User.Username(), currentModes)
 		if p, ok := u.User.Password(); ok {
-			pwd := replaceByOpt(Password, p, mo)
+			pwd := replaceByOpt(Password, p, currentModes)
 			if pwd == "" {
 				user = url.User(username)
 			} else {
@@ -115,9 +115,10 @@ func ReplaceURL(u *url.URL, opts ...Option) url.URL {
 		}
 		u.User = user
 	}
-	u.Scheme = replaceByOpt(Scheme, u.Scheme, mo)
-	u.Path = replaceByOpt(Path, u.Path, mo)
-	u.RawQuery = replaceByOpt(Query, u.RawQuery, mo)
-	u.Fragment = replaceByOpt(Fragment, u.Fragment, mo)
+	u.Scheme = replaceByOpt(Scheme, u.Scheme, currentModes)
+	u.Path = replaceByOpt(Path, u.Path, currentModes)
+	u.RawQuery = replaceByOpt(Query, u.RawQuery, currentModes)
+	u.Fragment = replaceByOpt(Fragment, u.Fragment, currentModes)
+	u.Host = replaceByOpt(Host, u.Host, currentModes)
 	return *u
 }
